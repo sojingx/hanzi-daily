@@ -16,55 +16,6 @@ function saveCache(wordId, data) {
   } catch {}
 }
 
-// ── Claude: register + context + example ─────────────────────────────────────
-async function fetchClaude(character, meaning) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-  if (!apiKey || apiKey.startsWith('your_')) throw new Error('No Anthropic API key configured');
-
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 500,
-      messages: [
-        {
-          role: 'user',
-          content: `You are a Mandarin Chinese language expert helping an intermediate learner understand how words appear in real life.
-
-For the word "${character}" (meaning: ${meaning}), return ONLY a JSON object — no markdown, no code fences, no explanation — with exactly these fields:
-
-{
-  "register": one of "formal" | "casual" | "literary" | "slang" | "song" | "neutral",
-  "contextNote": "1–2 sentences describing the kinds of real-life situations (TV dramas, news, song lyrics, everyday speech, literature, etc.) where this word naturally appears",
-  "listenTip": "A short, practical tip for recognising or remembering this word when heard or read in the wild",
-  "exampleLyricZh": "A natural, authentic-sounding example sentence in Chinese using this word — different from a textbook example",
-  "exampleLyricPinyin": "Full pinyin for that sentence",
-  "exampleLyricEn": "Natural English translation of that sentence"
-}`,
-        },
-      ],
-    }),
-  });
-
-  if (!resp.ok) {
-    const err = await resp.text().catch(() => '');
-    throw new Error(`Claude API ${resp.status}: ${err.slice(0, 120)}`);
-  }
-
-  const data = await resp.json();
-  const raw = data.content?.[0]?.text?.trim() ?? '';
-
-  // Strip accidental markdown fences if Claude wraps in ```json
-  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-  return JSON.parse(cleaned);
-}
-
 // ── Genius: first song result for the character ───────────────────────────────
 async function fetchGenius(character) {
   const token = import.meta.env.VITE_GENIUS_TOKEN;
@@ -88,7 +39,37 @@ async function fetchGenius(character) {
   };
 }
 
-// ── YouTube: up to 3 results across two search queries ───────────────────────
+// ── YouTube captions: find first timestamp where the character appears ─────────
+async function findWordTimestamp(videoId, character) {
+  // Try common Chinese caption language codes in order
+  const langCodes = ['zh-Hans', 'zh', 'zh-CN', 'zh-TW', 'zh-Hant'];
+
+  for (const lang of langCodes) {
+    try {
+      const timedtextUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${lang}&fmt=json3`;
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(timedtextUrl)}`;
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(5000) });
+      if (!resp.ok) continue;
+
+      const data = await resp.json();
+      if (!data.events?.length) continue;
+
+      for (const event of data.events) {
+        const text = (event.segs ?? []).map((s) => s.utf8 ?? '').join('');
+        if (text.includes(character)) {
+          return Math.floor((event.tStartMs ?? 0) / 1000);
+        }
+      }
+      // Caption track found but word not in it — no point trying other langs
+      break;
+    } catch {
+      // timeout or parse error — try next lang
+    }
+  }
+  return null;
+}
+
+// ── YouTube: up to 3 results + timestamps ────────────────────────────────────
 async function fetchYouTube(character) {
   const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
   if (!apiKey || apiKey.startsWith('your_')) throw new Error('No YouTube API key configured');
@@ -117,7 +98,10 @@ async function fetchYouTube(character) {
           id,
           title: item.snippet.title,
           channel: item.snippet.channelTitle,
-          thumbnail: item.snippet.thumbnails?.medium?.url ?? item.snippet.thumbnails?.default?.url ?? null,
+          thumbnail:
+            item.snippet.thumbnails?.medium?.url ??
+            item.snippet.thumbnails?.default?.url ??
+            null,
         });
       }
     } catch {
@@ -125,29 +109,34 @@ async function fetchYouTube(character) {
     }
   }
 
-  return results;
+  // Fetch timestamps for all videos in parallel
+  const withTimestamps = await Promise.all(
+    results.map(async (v) => {
+      const timestamp = await findWordTimestamp(v.id, character).catch(() => null);
+      return { ...v, timestamp };
+    })
+  );
+
+  return withTimestamps;
 }
 
-// ── Public: fetch all three in parallel, cache result ────────────────────────
+// ── Public: fetch in parallel, cache result ────────────────────────────────────
 export async function fetchInTheWild(word) {
   const cached = loadCache(word.id);
   if (cached) return cached;
 
-  const [claudeResult, geniusResult, youtubeResult] = await Promise.allSettled([
-    fetchClaude(word.character, word.meaning),
+  const [geniusResult, youtubeResult] = await Promise.allSettled([
     fetchGenius(word.character),
     fetchYouTube(word.character),
   ]);
 
   const result = {
-    claude: claudeResult.status === 'fulfilled' ? claudeResult.value : null,
-    claudeError: claudeResult.status === 'rejected' ? claudeResult.reason?.message : null,
     genius: geniusResult.status === 'fulfilled' ? geniusResult.value : null,
     youtube: youtubeResult.status === 'fulfilled' ? youtubeResult.value : [],
   };
 
   // Only cache if at least one source succeeded
-  if (result.claude || result.genius || result.youtube.length) {
+  if (result.genius || result.youtube.length) {
     saveCache(word.id, result);
   }
 

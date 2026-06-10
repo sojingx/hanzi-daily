@@ -1085,13 +1085,38 @@ input { font: inherit; }
 .itw-yt-item:first-child { border-top: none; }
 .itw-yt-item:active { background: var(--surface-2); }
 
+.itw-yt-thumb-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 80px;
+  height: 52px;
+}
+
 .itw-yt-thumb {
   width: 80px;
   height: 52px;
   border-radius: 6px;
   object-fit: cover;
-  flex-shrink: 0;
+  display: block;
   background: var(--surface-2);
+}
+
+.itw-yt-timestamp {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  background: rgba(192, 57, 43, 0.88);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 0 0 6px 6px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .itw-yt-meta {

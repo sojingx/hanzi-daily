@@ -3,65 +3,14 @@ import { fetchInTheWild, clearInTheWildCache } from '../lib/inTheWild';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const REGISTER_META = {
-  formal:   { label: 'Formal',   cls: 'reg-formal'   },
-  casual:   { label: 'Casual',   cls: 'reg-casual'   },
-  literary: { label: 'Literary', cls: 'reg-literary' },
-  slang:    { label: 'Slang',    cls: 'reg-slang'    },
-  song:     { label: 'Song',     cls: 'reg-song'     },
-  neutral:  { label: 'Neutral',  cls: 'reg-neutral'  },
-};
-
-/** Wrap every occurrence of `character` in the text with a red <span>. */
-function HighlightedText({ text, character }) {
-  if (!text || !character) return <span>{text}</span>;
-  const parts = text.split(character);
-  return (
-    <>
-      {parts.map((part, i) => (
-        <span key={i}>
-          {part}
-          {i < parts.length - 1 && (
-            <span className="itw-highlight">{character}</span>
-          )}
-        </span>
-      ))}
-    </>
-  );
+/** Format seconds as M:SS */
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = String(secs % 60).padStart(2, '0');
+  return `${m}:${s}`;
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-
-function ClaudeBlock({ data, character }) {
-  const reg = REGISTER_META[data.register] ?? REGISTER_META.neutral;
-
-  return (
-    <div className="itw-card itw-claude-card">
-      <div className="itw-card-header">
-        <span className="itw-card-icon">✦</span>
-        <span className="itw-card-title">Context</span>
-        <span className={`itw-reg-badge ${reg.cls}`}>{reg.label}</span>
-      </div>
-
-      <p className="itw-context-note">{data.contextNote}</p>
-
-      <div className="itw-listen-tip">
-        <span className="itw-tip-label">Listen for</span>
-        <span className="itw-tip-text">{data.listenTip}</span>
-      </div>
-
-      {data.exampleLyricZh && (
-        <div className="itw-example-block">
-          <p className="itw-example-zh">
-            <HighlightedText text={data.exampleLyricZh} character={character} />
-          </p>
-          <p className="itw-example-pinyin">{data.exampleLyricPinyin}</p>
-          <p className="itw-example-en">{data.exampleLyricEn}</p>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function GeniusBlock({ data }) {
   return (
@@ -96,7 +45,7 @@ function GeniusBlock({ data }) {
   );
 }
 
-function YouTubeBlock({ videos }) {
+function YouTubeBlock({ videos, character }) {
   if (!videos.length) return null;
 
   return (
@@ -108,28 +57,42 @@ function YouTubeBlock({ videos }) {
       </div>
 
       <div className="itw-yt-grid">
-        {videos.map((v) => (
-          <a
-            key={v.id}
-            className="itw-yt-item"
-            href={`https://www.youtube.com/watch?v=${v.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {v.thumbnail && (
-              <img
-                className="itw-yt-thumb"
-                src={v.thumbnail}
-                alt={v.title}
-                loading="lazy"
-              />
-            )}
-            <div className="itw-yt-meta">
-              <span className="itw-yt-title">{v.title}</span>
-              <span className="itw-yt-channel">{v.channel}</span>
-            </div>
-          </a>
-        ))}
+        {videos.map((v) => {
+          const href =
+            v.timestamp != null
+              ? `https://www.youtube.com/watch?v=${v.id}&t=${v.timestamp}`
+              : `https://www.youtube.com/watch?v=${v.id}`;
+
+          return (
+            <a
+              key={v.id}
+              className="itw-yt-item"
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div className="itw-yt-thumb-wrap">
+                {v.thumbnail && (
+                  <img
+                    className="itw-yt-thumb"
+                    src={v.thumbnail}
+                    alt={v.title}
+                    loading="lazy"
+                  />
+                )}
+                {v.timestamp != null && (
+                  <span className="itw-yt-timestamp">
+                    {character} at {formatTime(v.timestamp)}
+                  </span>
+                )}
+              </div>
+              <div className="itw-yt-meta">
+                <span className="itw-yt-title">{v.title}</span>
+                <span className="itw-yt-channel">{v.channel}</span>
+              </div>
+            </a>
+          );
+        })}
       </div>
     </div>
   );
@@ -141,7 +104,7 @@ function Spinner() {
   return (
     <div className="itw-spinner-wrap">
       <div className="itw-spinner" />
-      <p className="itw-spinner-text">Loading real-world context…</p>
+      <p className="itw-spinner-text">Finding real-world examples…</p>
     </div>
   );
 }
@@ -149,32 +112,30 @@ function Spinner() {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function InTheWild({ word }) {
-  const [state, setState] = useState({ status: 'idle', data: null, error: null });
+  const [state, setState] = useState({ status: 'idle', data: null });
 
   useEffect(() => {
     if (!word) return;
-    setState({ status: 'loading', data: null, error: null });
+    setState({ status: 'loading', data: null });
 
     fetchInTheWild(word)
-      .then((data) => setState({ status: 'done', data, error: null }))
-      .catch((err) => setState({ status: 'error', data: null, error: err.message }));
+      .then((data) => setState({ status: 'done', data }))
+      .catch(() => setState({ status: 'error', data: null }));
   }, [word?.id]);
 
   function handleRefresh() {
     clearInTheWildCache(word.id);
-    setState({ status: 'loading', data: null, error: null });
+    setState({ status: 'loading', data: null });
     fetchInTheWild(word)
-      .then((data) => setState({ status: 'done', data, error: null }))
-      .catch((err) => setState({ status: 'error', data: null, error: err.message }));
+      .then((data) => setState({ status: 'done', data }))
+      .catch(() => setState({ status: 'error', data: null }));
   }
 
   const { status, data } = state;
-  const hasContent =
-    data && (data.claude || data.genius || (data.youtube && data.youtube.length > 0));
+  const hasContent = data && (data.genius || data.youtube?.length > 0);
 
   return (
     <section className="itw-section">
-      {/* Section header */}
       <div className="itw-section-header">
         <div>
           <h3 className="itw-section-title">In the Wild</h3>
@@ -187,44 +148,28 @@ export function InTheWild({ word }) {
         )}
       </div>
 
-      {/* Loading */}
       {status === 'loading' && <Spinner />}
 
-      {/* Error with no data */}
-      {status === 'error' && !hasContent && (
+      {status === 'error' && (
         <div className="itw-error-box">
-          <p>Couldn't load data. Check your API keys in .env and try again.</p>
-          <button className="itw-retry-btn" onClick={handleRefresh}>
-            Retry
-          </button>
+          <p>Couldn't load data. Check your API keys and try again.</p>
+          <button className="itw-retry-btn" onClick={handleRefresh}>Retry</button>
         </div>
       )}
 
-      {/* Results */}
       {status === 'done' && hasContent && (
         <div className="itw-blocks">
-          {data.claude && (
-            <ClaudeBlock data={data.claude} character={word.character} />
-          )}
-          {!data.claude && data.claudeError && (
-            <div className="itw-partial-error">
-              Context unavailable: {data.claudeError}
-            </div>
-          )}
-
           {data.genius && <GeniusBlock data={data.genius} />}
-
-          {data.youtube?.length > 0 && <YouTubeBlock videos={data.youtube} />}
+          {data.youtube?.length > 0 && (
+            <YouTubeBlock videos={data.youtube} character={word.character} />
+          )}
         </div>
       )}
 
-      {/* Done but nothing came back */}
       {status === 'done' && !hasContent && (
         <div className="itw-error-box">
-          <p>No results found for this word. Make sure your API keys are set in .env</p>
-          <button className="itw-retry-btn" onClick={handleRefresh}>
-            Retry
-          </button>
+          <p>No results found for this word.</p>
+          <button className="itw-retry-btn" onClick={handleRefresh}>Retry</button>
         </div>
       )}
     </section>
