@@ -784,3 +784,338 @@ input { font: inherit; }
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
+
+/* ── In the Wild section ──────────────────────────────────────────────────────*/
+.itw-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.itw-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.itw-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.itw-section-sub {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.itw-refresh-btn {
+  font-size: 20px;
+  color: var(--text-3);
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+.itw-refresh-btn:hover { color: var(--accent); background: var(--accent-light); }
+
+/* Loading spinner */
+.itw-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+}
+
+.itw-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: itw-spin 0.7s linear infinite;
+}
+
+@keyframes itw-spin {
+  to { transform: rotate(360deg); }
+}
+
+.itw-spinner-text {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+/* Error / empty states */
+.itw-error-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  text-align: center;
+}
+.itw-error-box p {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.itw-retry-btn {
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+}
+
+.itw-partial-error {
+  font-size: 12px;
+  color: var(--text-3);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+/* Stack of cards */
+.itw-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Shared card shell */
+.itw-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.itw-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.itw-card-icon {
+  font-size: 15px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.itw-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  flex: 1;
+}
+
+/* Source badges (Genius / YouTube) */
+.itw-source-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.itw-source-genius { background: #fff0f0; color: #ff4158; }
+.itw-source-yt     { background: #fff0f0; color: #ff0000; }
+
+/* Register badges */
+.itw-reg-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.reg-formal   { background: #EBF4FF; color: #1A6EBD; }
+.reg-casual   { background: var(--green-light); color: var(--green); }
+.reg-literary { background: #F3EEF8; color: #7B4FAB; }
+.reg-slang    { background: #FFF3E0; color: #E65100; }
+.reg-song     { background: #FDECEA; color: var(--accent); }
+.reg-neutral  { background: var(--surface-2); color: var(--text-3); }
+
+/* Claude card body */
+.itw-context-note {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.65;
+  padding: 14px 16px 0;
+}
+
+.itw-listen-tip {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 12px 16px;
+  background: var(--accent-light);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.itw-tip-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  margin-top: 1px;
+}
+
+.itw-tip-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.itw-example-block {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.itw-example-zh {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text);
+  font-family: 'PingFang SC', 'Noto Serif SC', 'STSong', serif;
+  margin-bottom: 5px;
+}
+
+.itw-highlight {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.itw-example-pinyin {
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.6;
+  margin-bottom: 5px;
+  letter-spacing: 0.01em;
+}
+
+.itw-example-en {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* Genius card */
+.itw-genius-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+.itw-genius-link:active { background: var(--surface-2); }
+
+.itw-genius-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface-2);
+}
+
+.itw-genius-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.itw-genius-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itw-genius-artist {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.itw-genius-cta {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* YouTube card */
+.itw-yt-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.itw-yt-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: inherit;
+  border-top: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.itw-yt-item:first-child { border-top: none; }
+.itw-yt-item:active { background: var(--surface-2); }
+
+.itw-yt-thumb {
+  width: 80px;
+  height: 52px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface-2);
+}
+
+.itw-yt-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.itw-yt-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.itw-yt-channel {
+  font-size: 12px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,4 +1,5 @@
 import { WordCard } from '../components/WordCard';
+import { InTheWild } from '../components/InTheWild';
 import { words } from '../data/hsk4';
 import { getCard, saveCard, getToday } from '../lib/storage';
 import { createCard, reviewCard } from '../lib/sm2';
@@ -45,6 +46,8 @@ export function WordDetailScreen({ wordId, onBack, onDone }) {
           You've reviewed this word today. Come back tomorrow!
         </p>
       )}
+
+      <InTheWild word={word} />
     </div>
   );
 }
