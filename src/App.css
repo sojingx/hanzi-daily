@@ -647,3 +647,140 @@ input { font: inherit; }
   color: var(--text-2);
   line-height: 1.7;
 }
+
+/* ── History / Calendar screen ────────────────────────────────────────────────*/
+.history-screen { padding: 24px 20px 40px; }
+
+.history-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.history-title { font-size: 28px; font-weight: 700; }
+.history-sub {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 2px;
+  letter-spacing: 0.03em;
+}
+
+.history-empty {
+  text-align: center;
+  color: var(--text-3);
+  font-size: 14px;
+  margin-top: 32px;
+  line-height: 1.6;
+  padding: 0 16px;
+}
+
+/* Month nav bar */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-nav-btn {
+  font-size: 24px;
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.cal-nav-btn:active { background: var(--accent-light); }
+.cal-month-label {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+/* 7-column calendar grid */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.cal-dow {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 4px 0 8px;
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-2);
+  position: relative;
+  transition: background 0.15s;
+  gap: 2px;
+}
+.cal-cell:not(.cal-empty):active { background: var(--surface-2); }
+
+.cal-empty { pointer-events: none; }
+
+.cal-day-num { line-height: 1; font-weight: 400; }
+
+.cal-cell.has-word .cal-day-num { font-weight: 600; color: var(--text); }
+
+.cal-cell.is-today .cal-day-num {
+  background: var(--accent);
+  color: #fff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.cal-cell.is-selected {
+  background: var(--accent-light);
+}
+.cal-cell.is-selected .cal-day-num { color: var(--accent); font-weight: 700; }
+
+/* Red dot indicator */
+.cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Selected day word detail */
+.cal-detail {
+  margin-top: 4px;
+  animation: fadeUp 0.2s ease;
+}
+
+.cal-detail-date {
+  font-size: 13px;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-bottom: 12px;
+  text-transform: capitalize;
+}
+
+.cal-no-word {
+  text-align: center;
+  color: var(--text-3);
+  font-size: 14px;
+  padding: 24px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}

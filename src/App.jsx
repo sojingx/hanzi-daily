@@ -3,6 +3,7 @@ import { HomeScreen } from './screens/HomeScreen';
 import { WordDetailScreen } from './screens/WordDetailScreen';
 import { ReviewScreen } from './screens/ReviewScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { HistoryScreen } from './screens/HistoryScreen';
 import { NavBar } from './components/NavBar';
 import {
   getToday,
@@ -110,6 +111,10 @@ export default function App() {
 
         {screen === 'settings' && (
           <SettingsScreen todayWordId={todayWordId} />
+        )}
+
+        {screen === 'history' && (
+          <HistoryScreen />
         )}
       </main>
 

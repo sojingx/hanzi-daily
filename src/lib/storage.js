@@ -48,7 +48,23 @@ export function getTodayWord() {
 }
 
 export function saveTodayWord(wordId) {
-  save('todayWord', { wordId, date: getToday() });
+  const today = getToday();
+  save('todayWord', { wordId, date: today });
+  // Log to daily history (only write once per day)
+  const history = getDailyHistory();
+  if (!history[today]) {
+    history[today] = wordId;
+    saveDailyHistory(history);
+  }
+}
+
+// ── Daily history: { 'YYYY-MM-DD': wordId } ──────────────────────────────────
+export function getDailyHistory() {
+  return load('dailyHistory', {});
+}
+
+export function saveDailyHistory(history) {
+  save('dailyHistory', history);
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
